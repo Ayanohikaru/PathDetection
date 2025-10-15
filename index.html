@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NAB — NAS / DFS Path Detection Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Fonts & Icons (optional) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>NAB — NAS / DFS Path Detection Portal</h1>
+      <p class="tagline">Scan Office macro-enabled files in your browser for hard-coded NAS/DFS and absolute paths.</p>
+    </header>
+
+    <section id="preScanChecklist" class="pre-scan-checklist">
+      <h3 title="Hover for constraints">⚙️ Before You Scan <span class="info" aria-hidden>ℹ️</span></h3>
+      <p>Please confirm you understand the following:</p>
+      <ul class="checklist">
+        <li><i class="fa-check">✔</i> This tool runs entirely in your browser — no files are uploaded.</li>
+        <li><i class="fa-check">✔</i> Large files (50–100MB) may take up to 20 seconds to process.</li>
+        <li><i class="fa-check">✔</i> Password-protected files cannot be scanned.</li>
+        <li><i class="fa-check">✔</i> Access (.accdb) files require the Access engine (not available in browser).</li>
+        <li><i class="fa-check">✔</i> Binary formats (.xls, .doc, .ppt) have limited detection accuracy.</li>
+        <li><i class="fa-check">✔</i> Results are stored locally unless exported manually.</li>
+      </ul>
+      <div class="acknowledge-box">
+        <label>
+          <input type="checkbox" id="acknowledgeGuidance">
+          <strong>I understand and want to start scanning</strong>
+        </label>
+      </div>
+    </section>
+
+    <section class="uploader">
+      <div class="uploader-inner">
+        <div id="dropzone" class="dropzone" tabindex="0">Drop files here or <button id="chooseFilesBtn" class="btn">Choose Files</button></div>
+        <input id="fileInput" type="file" accept=".xlsm,.xlsb,.docm,.pptm" multiple hidden>
+        <div class="file-info">
+          <p>Accepted: .xlsm, .xlsb, .docm, .pptm — up to 10 files, max 100MB each.</p>
+          <div class="selected-list" id="selectedList" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="scanBtn" class="btn primary" disabled>Scan Files</button>
+        <button id="resetBtn" class="btn" disabled>Scan Another</button>
+        <button id="exportBtn" class="btn" disabled>Download CSV Report</button>
+      </div>
+    </section>
+
+    <section class="progress-panel" hidden id="progressPanel">
+      <div class="progress-bar-wrap">
+        <div id="progressBar" class="progress-bar"><span id="progressPct">0%</span></div>
+      </div>
+      <div class="progress-meta">
+        <div>Current file: <span id="currentFile">-</span></div>
+        <div>Elapsed: <span id="elapsed">0s</span></div>
+        <div>Detections: <span id="detectionCount">0</span></div>
+      </div>
+    </section>
+
+    <!-- Scanning overlay / status banners -->
+    <div id="scanningOverlay" class="scanning-overlay hidden" aria-hidden="true">
+      <div class="scanning-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="scanning-text">
+          <div id="loadingText">Waiting...</div>
+          <div class="scanning-sub">This may take up to 20 seconds per large file.</div>
+        </div>
+      </div>
+    </div>
+
+
+    <section id="results" class="results" hidden>
+      <h2>Scan Results</h2>
+      <div id="statusMessage" class="status-message hidden"></div>
+      <div id="errorDetails" class="error-details hidden">
+        <h4>Error Details</h4>
+        <table>
+          <thead><tr><th>File</th><th>Status</th><th>Reason</th></tr></thead>
+          <tbody id="errorDetailsBody"></tbody>
+        </table>
+      </div>
+      <div class="result-actions">
+        <button id="exportCsvTop" class="btn">Download CSV Report</button>
+        <button id="scanAgainTop" class="btn">Scan Another</button>
+      </div>
+
+      <div class="result-sections">
+        <details open class="result-detail nas" id="nasSection">
+          <summary>NAS Shared Drive Paths <span class="count" id="nasCount">(0)</span></summary>
+          <div class="result-table-wrap"><table id="nasTable" class="result-table" aria-live="polite"><thead><tr><th>File</th><th>Line</th><th>Path</th><th>Possible Usage</th><th>Impact</th></tr></thead><tbody></tbody></table></div>
+        </details>
+
+        <details open class="result-detail other" id="otherSection">
+          <summary>Other Paths, inlcuding systematic paths<span class="count" id="otherCount">(0)</span></summary>
+          <div class="result-table-wrap"><table id="otherTable" class="result-table" aria-live="polite"><thead><tr><th>File</th><th>Line</th><th>Path</th><th>Possible Usage</th><th>Impact</th></tr></thead><tbody></tbody></table></div>
+        </details>
+
+        <details class="result-detail protected" id="protectedSection">
+          <summary>Protected or Encrypted Files <span class="count" id="protectedCount">(0)</span></summary>
+          <div class="protected-list" id="protectedList"></div>
+        </details>
+      </div>
+
+      <div class="result-actions bottom">
+        <button id="exportCsvBottom" class="btn primary">Download CSV Report</button>
+        <button id="scanAgainBottom" class="btn">Scan Another</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>National Australia Bank — Private & Confidential. Built for in-browser analysis.</small>
+    </footer>
+  </main>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <!-- lightweight vba helper -->
+  <script src="vba-extractor.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
