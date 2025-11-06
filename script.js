@@ -409,30 +409,100 @@ class PathDetector {
     return 'Generic';
   }
 
-  populateResults(){
-    // populate tables and protected list
-    this.nasTable.innerHTML=''; this.otherTable.innerHTML=''; this.protectedList.innerHTML='';
-    let nasCount=0, otherCount=0;
-    this.results.forEach(r=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.file}</td><td>${r.line}</td><td class="path-cell">${this.highlight(r.path)}</td><td>${r.possibleUsage}</td><td>${r.impact}</td>`;
-      if(r.category==='NAS Shared Drive'){ this.nasTable.appendChild(tr); nasCount++; }
-      else { this.otherTable.appendChild(tr); otherCount++; }
-    });
-    this.nasCountLabel.textContent = `(${nasCount})`;
-    this.otherCountLabel.textContent = `(${otherCount})`;
-    this.totalDetections = nasCount + otherCount;
-    this.detectionCountLabel.textContent = this.totalDetections;
+  populateResults() {
+  // --- Reset UI tables ---
+  this.nasTable.innerHTML = "";
+  this.otherTable.innerHTML = "";
+  this.protectedList.innerHTML = "";
 
-    this.protectedFiles.forEach(p=>{
-      const div = document.createElement('div'); div.textContent = `${p.file} — ${p.reason || p.status || 'Protected or unreadable'}`; this.protectedList.appendChild(div);
-    });
-    this.protectedCountLabel.textContent = `(${this.protectedFiles.length})`;
+  let nasCount = 0;
+  let otherCount = 0;
 
-    // enable export
-    document.getElementById('exportCsvTop').disabled=false;
-    document.getElementById('exportCsvBottom').disabled=false;
+  // --- Build detailed results tables ---
+  this.results.forEach((r) => {
+    const tr = document.createElement("tr");
+    const prot = r.vbaProtected ? "🔒" : "";
+    const wrappedPath = this.escapeHtml(r.path);
+    tr.innerHTML = `
+      <td>${r.file}</td>
+      <td>${r.section}</td>
+      <td class="path-cell">${wrappedPath}</td>
+      <td>${r.possibleUsage} ${prot}</td>
+      <td>${r.impact}</td>
+    `;
+
+    if (/aur\.national\.com\.au/i.test(r.path)) {
+      this.nasTable.appendChild(tr);
+      nasCount++;
+    } else {
+      this.otherTable.appendChild(tr);
+      otherCount++;
+    }
+  });
+
+  // --- Update counts ---
+  this.nasCountLabel.textContent = `(${nasCount})`;
+  this.otherCountLabel.textContent = `(${otherCount})`;
+  this.totalDetections = nasCount + otherCount;
+  this.detectionCountLabel.textContent = this.totalDetections;
+
+  // --- Protected files list ---
+  this.protectedFiles.forEach((p) => {
+    const div = document.createElement("div");
+    const icon = /VBA Project Protected/i.test(p.status)
+      ? "🔒"
+      : "⚠️";
+    div.innerHTML = `${icon} <strong>${p.file}</strong> — ${
+      p.reason || "Protected or unreadable"
+    }`;
+    this.protectedList.appendChild(div);
+  });
+  this.protectedCountLabel.textContent = `(${this.protectedFiles.length})`;
+
+  // --- Build summary table (NEW) ---
+  const summaryBody = document.getElementById("summaryBody");
+  if (summaryBody) summaryBody.innerHTML = "";
+
+  // Aggregate results by file
+  const fileMap = {};
+  this.results.forEach((r) => {
+    if (!fileMap[r.file])
+      fileMap[r.file] = { nas: false, unc: false, prot: false, other: false };
+    if (/aur\.national\.com\.au/i.test(r.path)) fileMap[r.file].nas = true;
+    if (/^[A-Z]:\\/i.test(r.path) || /^\\\\/.test(r.path))
+      fileMap[r.file].unc = true;
+    if (r.vbaProtected) fileMap[r.file].prot = true;
+    if (r.category === "Other Hard-Coded Path") fileMap[r.file].other = true;
+  });
+
+  // Include protected-only files (even if no path detection)
+  this.protectedFiles.forEach((p) => {
+    if (!fileMap[p.file])
+      fileMap[p.file] = { nas: false, unc: false, prot: false, other: false };
+    if (/VBA Project Protected/i.test(p.status)) fileMap[p.file].prot = true;
+  });
+
+  // Render summary table
+  if (summaryBody) {
+    Object.entries(fileMap).forEach(([file, flags]) => {
+      const tr = document.createElement("tr");
+      const icon = (ok) => (ok ? "✅" : "❌");
+      tr.innerHTML = `
+        <td>${file}</td>
+        <td>${icon(flags.nas)}</td>
+        <td>${icon(flags.unc)}</td>
+        <td>${icon(flags.prot)}</td>
+        <td>${icon(flags.other)}</td>
+      `;
+      summaryBody.appendChild(tr);
+    });
   }
+
+  // --- Enable CSV export ---
+  document.getElementById("exportCsvTop").disabled = false;
+  document.getElementById("exportCsvBottom").disabled = false;
+}
+
 
   showStatus(message, type='info'){
     if(!this.statusMessage) return;
@@ -481,3 +551,4 @@ class PathDetector {
 window.addEventListener('DOMContentLoaded',()=>{
   window.pathDetector = new PathDetector();
 });
+
