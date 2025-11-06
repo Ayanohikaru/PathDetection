@@ -1,69 +1,197 @@
-:root{
-  --nab-red:#ED0000;
-  --nab-black:#000000;
-  --bg:#fafafa;
-  --muted:#666;
-  --card:#ffffff;
+/* NAB Portal Styling */
+:root {
+  --nab-red: #d50000;
+  --nab-black: #000;
+  --gray-light: #f6f6f6;
+  --gray-border: #ddd;
 }
-html,body{height:100%;}
-body{font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:#111;margin:0}
-.container{max-width:1100px;margin:26px auto;padding:20px}
-.header{display:flex;align-items:flex-start;gap:20px}
-.header h1{color:var(--nab-black);margin:0;font-size:1.4rem}
-.header .tagline{color:var(--muted);margin:6px 0 0;font-size:0.95rem}
-.pre-scan-checklist{background:none;padding:1.5rem 1rem;margin-bottom:1.5rem;text-align:left}
-.pre-scan-checklist h3{color:var(--nab-red);font-size:1.3rem;margin-bottom:0.5rem}
-.checklist{list-style:none;padding:0;margin:1rem 0}
-.checklist li{padding:0.4rem 0;display:flex;align-items:center;border-bottom:1px dashed #ddd;font-size:0.95rem}
-.checklist li i{color:var(--nab-red);margin-right:0.75rem;font-size:1rem}
-.acknowledge-box{text-align:center;background:var(--nab-red);color:white;padding:1rem;border-radius:6px;font-size:1rem;box-shadow:0 2px 4px rgba(0,0,0,0.1);animation:pulse 1.5s ease-out 2}
-.acknowledge-box input[type="checkbox"]{width:20px;height:20px;margin-right:8px;accent-color:white;cursor:pointer}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(237,0,0,0.4)}70%{box-shadow:0 0 0 10px rgba(237,0,0,0)}100%{box-shadow:0 0 0 0 rgba(237,0,0,0)}}
-.uploader{display:flex;gap:18px;align-items:flex-start}
-.uploader-inner{flex:1}
-.dropzone{min-height:80px;border:2px dashed #ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:14px;background:var(--card);cursor:pointer}
-.dropzone:focus{outline:3px solid rgba(237,0,0,0.12)}
-.btn{border:1px solid #ccc;background:white;padding:8px 12px;border-radius:6px;cursor:pointer}
-.btn.primary{background:var(--nab-red);color:#fff;border-color:var(--nab-red)}
-.controls{display:flex;gap:8px;align-items:center;margin-left:12px}
-.file-info{margin-top:12px}
-.selected-list{margin-top:8px;font-size:0.95rem;color:var(--muted)}
-.progress-panel{margin-top:16px}
-.progress-bar-wrap{background:#eee;border-radius:8px;padding:4px}
-.progress-bar{width:0%;background:var(--nab-red);height:18px;border-radius:6px;position:relative}
-.progress-bar span{position:absolute;right:8px;color:#fff;font-weight:600}
-.result-sections{margin-top:12px}
-.result-detail{margin-bottom:12px;border-radius:6px;background:#fff;padding:8px}
-.result-detail.nas{border-left:6px solid var(--nab-red)}
-.result-detail.other{border-left:6px solid #333}
-.result-detail.protected{background:#fffbe6;border-left:6px solid #f0c36d}
-.result-table{width:100%;border-collapse:collapse}
-.result-table th,.result-table td{padding:8px;border-bottom:1px solid #eee;text-align:left;font-size:0.92rem}
-.result-table th{background:#fafafa}
-mark{background:rgba(237,0,0,0.15);padding:0 2px}
-.result-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
-.footer{margin-top:24px;color:var(--muted);font-size:0.85rem}
-.info{font-size:0.9rem;color:var(--muted);margin-left:6px}
-.protected-list{padding:8px}
-.count{font-weight:600;margin-left:6px}
-/* Status and overlay styles */
-.status-message{padding:1rem;margin:1rem 0;border-radius:6px;text-align:center;font-weight:600}
-.status-message.success{background:#e8f5e9;color:#2e7d32}
-.status-message.warning{background:#fff8e1;color:#a07800}
-.status-message.error{background:#ffebee;color:#b71c1c}
-.status-message.info{background:#e3f2fd;color:#1565c0;animation:blink 1.2s infinite ease-in-out}
-.error-details{margin-top:1rem;background:#fff3e0;border-radius:6px;padding:1rem;font-size:0.9rem}
-.error-details table{width:100%;border-collapse:collapse}
-.error-details th,.error-details td{padding:0.5rem;border:1px solid #ddd}
 
-/* scanning overlay */
-.scanning-overlay{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:1200}
-.scanning-overlay.hidden{display:none}
-.scanning-card{background:white;padding:18px 20px;border-radius:8px;display:flex;align-items:center;gap:12px;min-width:320px}
-.spinner{width:32px;height:32px;border-radius:50%;border:4px solid #eee;border-top-color:var(--nab-red);animation:spin 1s linear infinite}
-.scanning-text{font-weight:600}
-.scanning-sub{font-weight:400;font-size:0.9rem;color:var(--muted)}
+html, body {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 14px;
+  color: #222;
+  margin: 0;
+  background: #fff;
+}
 
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-/* responsive */
-@media (max-width:700px){.controls{flex-wrap:wrap}.header{flex-direction:column;gap:4px}}
+/* ===== HEADER ===== */
+.top-banner {
+  background: var(--nab-black);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 4px solid var(--nab-red);
+}
+.top-banner .left {
+  display: flex;
+  align-items: center;
+}
+.top-banner .logo {
+  height: 40px;
+  margin-right: 1rem;
+}
+.banner-title {
+  font-size: 1.3rem;
+  margin: 0;
+}
+.subtitle {
+  font-size: 0.9rem;
+  color: #ddd;
+}
+.link {
+  color: var(--nab-red);
+  text-decoration: none;
+}
+.link:hover { text-decoration: underline; }
+
+/* ===== GENERAL ===== */
+.container {
+  max-width: 1000px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+h2 {
+  border-left: 4px solid var(--nab-red);
+  padding-left: 0.5rem;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+ul.checklist {
+  list-style: none;
+  padding-left: 1rem;
+}
+ul.checklist li {
+  font-size: 1rem;
+  margin: 0.2rem 0;
+}
+.acknowledge {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+.acknowledge input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(0.9);
+}
+
+/* ===== UPLOAD ===== */
+.dropzone {
+  border: 2px dashed #ccc;
+  padding: 1.2rem;
+  text-align: center;
+  background: #fafafa;
+  margin: 1rem 0;
+}
+.dropzone.drag { border-color: var(--nab-red); }
+.note {
+  font-size: 0.9rem;
+  color: #555;
+}
+.selected-list div {
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+.controls {
+  margin-top: 0.8rem;
+}
+.btn {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+.btn.primary {
+  background: var(--nab-red);
+  color: #fff;
+  border: none;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn i { margin-right: 0.4rem; }
+
+/* ===== PROGRESS ===== */
+.progress-panel {
+  margin-top: 1rem;
+}
+.progress-bar-wrap {
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar {
+  background: var(--nab-red);
+  height: 12px;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  transition: width 0.3s;
+}
+.progress-meta {
+  font-size: 0.8rem;
+  color: #555;
+  margin-top: 0.2rem;
+}
+
+/* ===== RESULTS ===== */
+.status-message {
+  margin: 1rem 0;
+  font-weight: 600;
+}
+.status-message.info { color: #333; }
+.status-message.success { color: green; }
+.status-message.warning { color: #e69500; }
+.status-message.error { color: var(--nab-red); }
+
+/* Summary table */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+.summary-table th, .summary-table td {
+  border: 1px solid var(--gray-border);
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.summary-table th {
+  background: var(--gray-light);
+}
+
+/* Detailed tables */
+.result-table-wrap {
+  overflow-x: auto;
+}
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+.result-table th, .result-table td {
+  border: 1px solid var(--gray-border);
+  padding: 0.3rem 0.5rem;
+  vertical-align: top;
+  font-size: 0.85rem;
+}
+.result-table th { background: var(--gray-light); }
+
+.protected-list {
+  font-size: 0.9rem;
+  padding-left: 0.5rem;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #777;
+  padding: 1rem 0 2rem;
+  border-top: 1px solid #eee;
+}
